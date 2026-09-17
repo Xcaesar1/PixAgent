@@ -1,5 +1,9 @@
 # PixAgent
 
+<p align="center">
+  <img src="assets/branding/pixagent-logo.png" alt="PixAgent Logo" width="320" />
+</p>
+
 AI 图片编辑应用，使用自然语言规划编辑步骤，支持画布编辑、图层操作、图片生成、抠图和区域编辑。
 
 ## 技术栈
