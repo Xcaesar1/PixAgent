@@ -112,15 +112,6 @@ GPT 模式使用第三方站点账号额度，**不是 OpenAI 官方 API 接入�
 
 例如输入「先去背景，再调亮一点」。Agent 读取画布摘要，输出工具计划；服务端验证工具名、参数和依赖关系。单步计划直接进入执行流程，多步计划先由用户确认，支持取消与失败步骤重试。
 
-<details>
-<summary>展开查看 plan → verify 示意图</summary>
-
-![Agent 规划与校验流程](assets/readme/agent-plan-verify.webp)
-
-配图来自用户提供的《AI 修图智能体：面试题解》（编程导航），保留原图标识；用于解释规划流程，不是线上运行截图。
-
-</details>
-
 ```mermaid
 sequenceDiagram
     participant U as 用户
