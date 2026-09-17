@@ -1,0 +1,10 @@
+.git
+.env
+.env.*
+!.env.example
+docs
+backend/.venv
+backend/.pytest_cache
+backend/.ruff_cache
+frontend/node_modules
+frontend/dist

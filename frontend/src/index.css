@@ -1,0 +1,205 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans:
+    system-ui, -apple-system, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+
+  --color-ink: #171917;
+  --color-muted: #6f746f;
+  --color-faint: #9aa09a;
+  --color-line: #e5e8e4;
+  --color-line-strong: #d7dbd6;
+  --color-paper: #ffffff;
+  --color-canvas: #eff1ee;
+  --color-soft: #f6f7f5;
+  --color-dark: #1e211e;
+
+  --color-brand: #5f98ad;
+  --color-brand-strong: #427f95;
+  --color-brand-soft: #e8f2f5;
+  --color-accent: #d9ff6e;
+
+  --color-danger: #d95656;
+  --color-success: #3b8a61;
+
+  --radius-chip: 8px;
+  --radius-card: 18px;
+  --radius-control: 12px;
+  --radius-panel: 26px;
+
+  --shadow-card: 0 16px 42px rgb(25 31 26 / 0.09);
+  --shadow-control: 0 8px 22px rgb(27 31 27 / 0.08);
+  --shadow-lift: 0 20px 46px -18px rgb(20 26 20 / 0.18);
+  --shadow-panel: 0 28px 72px -26px rgb(20 26 20 / 0.3);
+
+  --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --animate-rise: rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-pop: pop 0.26s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-fade-out: fade-out 0.18s ease-in both;
+  --animate-slide-in: slide-in 0.26s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-slide-out: slide-out 0.2s ease-in both;
+  --animate-fade-in: fade-in 0.22s cubic-bezier(0.22, 1, 0.36, 1) both;
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translate3d(0, 14px, 0);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes pop {
+    from {
+      opacity: 0;
+      transform: translate3d(0, 10px, 0) scale(0.96);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes fade-out {
+    from {
+      opacity: 1;
+      transform: none;
+    }
+    to {
+      opacity: 0;
+      transform: translate3d(0, 6px, 0) scale(0.97);
+    }
+  }
+
+  @keyframes slide-in {
+    from {
+      opacity: 0;
+      transform: translate3d(16px, 0, 0);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes slide-out {
+    from {
+      opacity: 1;
+      transform: none;
+    }
+    to {
+      opacity: 0;
+      transform: translate3d(16px, 0, 0);
+    }
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    @apply bg-canvas text-ink font-sans antialiased;
+  }
+
+  :focus-visible {
+    @apply outline-brand outline-2 outline-offset-2;
+  }
+
+  /* 滑杆是修图里最高频的控件，统一做成跟手的细轨道加浮起滑块 */
+  input[type='range'] {
+    @apply h-4 w-full cursor-pointer appearance-none bg-transparent;
+  }
+
+  input[type='range']::-webkit-slider-runnable-track {
+    @apply bg-line h-1 rounded-full;
+  }
+
+  input[type='range']::-webkit-slider-thumb {
+    @apply bg-paper border-line-strong shadow-control -mt-1.5 size-4 appearance-none rounded-full border;
+    transition:
+      transform 0.15s var(--ease-soft),
+      border-color 0.15s var(--ease-soft),
+      background-color 0.15s var(--ease-soft);
+  }
+
+  input[type='range']:hover::-webkit-slider-thumb {
+    @apply border-brand scale-110;
+  }
+
+  input[type='range']:active::-webkit-slider-thumb {
+    @apply border-brand bg-brand-soft scale-95;
+  }
+
+  input[type='range']:disabled {
+    @apply cursor-not-allowed opacity-40;
+  }
+
+  input[type='range']::-moz-range-track {
+    @apply bg-line h-1 rounded-full;
+  }
+
+  input[type='range']::-moz-range-thumb {
+    @apply bg-paper border-line-strong size-4 appearance-none rounded-full border;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* 面板与侧栏的滚动条不占视觉重量 */
+@utility scrollbar-slim {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-line-strong) transparent;
+
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: var(--color-line-strong);
+    border: 2px solid transparent;
+    border-radius: 999px;
+    background-clip: content-box;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+/* 首屏顶部的光晕，为居中的输入面板提供视觉重心 */
+@utility bg-glow {
+  background:
+    radial-gradient(62% 52% at 50% -6%, rgb(232 242 245 / 0.95), transparent 72%),
+    radial-gradient(34% 34% at 84% 6%, rgb(217 255 110 / 0.28), transparent 70%);
+}
+
+/* 网格底纹，向下淡出以免干扰正文 */
+@utility bg-grid {
+  background-image:
+    linear-gradient(to right, rgb(23 25 23 / 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(23 25 23 / 0.05) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(68% 58% at 50% 0%, #000 10%, transparent 100%);
+}

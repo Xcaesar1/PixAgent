@@ -1,0 +1,26 @@
+[
+  {
+    "id": "matting-1",
+    "task": "remove_background",
+    "input": "images/product-white.png",
+    "expect": "expect/product-alpha.png",
+    "metrics": ["alpha_iou"],
+    "thresholds": { "alpha_iou": 0.8 }
+  },
+  {
+    "id": "adjust-1",
+    "task": "adjust_image",
+    "input": "images/product.png",
+    "expect": "expect/product-bright.png",
+    "params": { "brightness": 0.2 },
+    "metrics": ["mae", "psnr"],
+    "thresholds": { "mae": 12, "psnr": 20 }
+  },
+  {
+    "id": "delivery-1",
+    "task": "prepare_delivery_sizes",
+    "input": "images/product.png",
+    "params": { "ratios": ["1:1", "4:5", "9:16"] },
+    "metrics": ["size", "contain"]
+  }
+]

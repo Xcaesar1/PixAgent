@@ -1,0 +1,55 @@
+[project]
+name = "ai-retouch-agent-backend"
+version = "0.1.0"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi",
+    "uvicorn[standard]",
+    "pydantic-settings",
+    "sqlalchemy[asyncio]",
+    "asyncpg",
+    "alembic",
+    "arq",
+    "redis",
+    "boto3",
+    "pillow",
+    "python-multipart",
+    "bcrypt",
+    "pyjwt",
+    "httpx",
+]
+
+[project.optional-dependencies]
+cv = [
+    "rembg",
+    "onnxruntime",
+    "opencv-python-headless",
+    "rapidocr-onnxruntime",
+]
+agent = [
+    "langgraph",
+    "langgraph-checkpoint-postgres",
+    "langchain-core",
+    "langchain-openai",
+]
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "pytest-asyncio",
+    "ruff",
+]
+
+[tool.ruff]
+line-length = 100
+exclude = ["migrations"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+pythonpath = ["."]
+# 数据库引擎在模块级创建，全部测试须共享同一事件循环，否则连接跨循环复用会失败
+asyncio_default_fixture_loop_scope = "session"
+asyncio_default_test_loop_scope = "session"
