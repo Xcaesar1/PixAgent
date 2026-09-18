@@ -1,0 +1,102 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend checks
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      APP_ENV: tunnel
+      REGISTRATION_ENABLED: "true"
+      DATABASE_URL: postgresql+asyncpg://retouch:retouch_dev@localhost:7311/retouch
+      REDIS_URL: redis://localhost:7312
+      S3_ENDPOINT: http://localhost:7313
+      S3_PUBLIC_ENDPOINT: http://localhost:7313
+      S3_ACCESS_KEY: retouch
+      S3_SECRET_KEY: retouch_dev
+      S3_BUCKET: pixagent-ci
+      JWT_SECRET: ci-only-secret-not-for-production-use
+      IMAGE_PROVIDER: mock
+      GENERATION_PROVIDER: ""
+      DASHSCOPE_API_KEY: ""
+      L0VEYOU_TOKEN_FILE: ""
+      MATTING_PROVIDER: corner
+      OCR_PROVIDER: none
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Set up uv and Python
+        uses: astral-sh/setup-uv@v10
+        with:
+          python-version: "3.13"
+          enable-cache: true
+          cache-dependency-glob: backend/uv.lock
+      - name: Install locked dependencies
+        run: uv sync --frozen --all-extras
+      - name: Check critical Python errors
+        run: uv run --frozen --all-extras ruff check app tests --select E9,F63,F7,F82
+      - name: Start isolated test services
+        id: services
+        working-directory: .
+        run: |
+          cp .env.example .env
+          docker compose -p pixagent-ci -f docker-compose.yml up -d --wait --wait-timeout 120 postgres redis minio
+      - name: Apply database migrations
+        run: uv run --frozen --all-extras alembic upgrade head
+      - name: Run backend and offline evaluation tests
+        run: uv run --frozen --all-extras pytest -q --junitxml=../artifacts/pytest.xml
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-test-report
+          path: artifacts/pytest.xml
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Show service logs on failure
+        if: failure() && steps.services.outcome != 'skipped'
+        working-directory: .
+        run: docker compose -p pixagent-ci -f docker-compose.yml logs --no-color --tail=100 postgres redis minio
+      - name: Remove CI services and volumes
+        if: always() && steps.services.outcome != 'skipped'
+        working-directory: .
+        run: docker compose -p pixagent-ci -f docker-compose.yml down --volumes --remove-orphans
+
+  frontend:
+    name: Frontend checks
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Lint frontend
+        run: npm run lint
+      - name: Type-check and build frontend
+        run: npm run build

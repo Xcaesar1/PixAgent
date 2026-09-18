@@ -14,6 +14,7 @@
 ![LangGraph](https://img.shields.io/badge/LangGraph-Agent-164B35?style=flat-square)
 ![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=flat-square&logo=docker&logoColor=white)
 [![License: GPL-2.0](https://img.shields.io/badge/License-GPL--2.0-blue?style=flat-square)](LICENSE)
+[![CI](https://github.com/Xcaesar1/PixAgent/actions/workflows/ci.yml/badge.svg)](https://github.com/Xcaesar1/PixAgent/actions/workflows/ci.yml)
 [![Stars](https://img.shields.io/github/stars/Xcaesar1/PixAgent?style=flat-square&color=B1F52A)](https://github.com/Xcaesar1/PixAgent/stargazers)
 
 [项目简介](#项目简介) · [核心亮点](#核心亮点) · [系统架构](#系统架构) · [功能与工作流](#核心功能与工作流) · [运行展示](#实际运行展示) · [快速部署](#快速部署与运行指北) · [代码导读](#目录结构与关键代码导读)
@@ -290,8 +291,11 @@ uv run pytest
 
 ## 目录结构与关键代码导读
 
+自动检查配置见 [CI 工作流](.github/workflows/ci.yml) 与 [运行说明](.github/CI.md)：推送和 PR 会触发后端测试、数据库迁移检查、前端静态检查与构建；仅使用 Mock 模式，不调用付费生图服务，也不会自动部署。
+
 ```text
 PixAgent/
+├── .github/                       # CI 工作流与检查说明
 ├── assets/                        # 品牌图片、README 配图与真实截图
 ├── backend/
 │   ├── app/
