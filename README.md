@@ -107,8 +107,6 @@ flowchart LR
 | 国内生图 | `DASHSCOPE_API_KEY` + `GENERATION_PROVIDER=dashscope` | 表单支持多种比例与数量；实际模型能力和计费以服务商为准。 |
 | GPT 生图 | `L0VEYOU_TOKEN_FILE` + `GENERATION_PROVIDER=l0veyou` | 当前每次 1 张，支持 1:1、3:4、9:16、16:9，不支持参考图和随机种子。 |
 
-GPT 模式使用第三方站点账号额度，**不是 OpenAI 官方 API 接入，也不承诺永久免费**。登录凭证只放在服务端受限文件中，过期后需要更新。`GENERATION_PROVIDER` 只控制生图默认模式，不会自动改变编辑工具的 `IMAGE_PROVIDER`。
-
 ### 2. 自然语言规划与人工确认
 
 例如输入「先去背景，再调亮一点」。Agent 读取画布摘要，输出工具计划；服务端验证工具名、参数和依赖关系。单步计划直接进入执行流程，多步计划先由用户确认，支持取消与失败步骤重试。
