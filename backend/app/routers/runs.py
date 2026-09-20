@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db import SessionDep
 from app.deps import CurrentUser
 from app.models.tool_run import ToolRun
+from app.providers.generation_modes import generation_modes
 from app.schemas.asset import AssetOut
 from app.schemas.run import GenerateIn, RunOut
 from app.services import assets as asset_service
@@ -32,8 +33,18 @@ async def create_generation(payload: GenerateIn, user: CurrentUser, session: Ses
         if await asset_service.get_for_user(session, user.id, asset_id) is None:
             raise HTTPException(status.HTTP_404_NOT_FOUND, "参考图不存在")
 
-    run = await tools.submit(session, user.id, GENERATE_IMAGE.name, payload.model_dump(mode="json"))
+    try:
+        run = await tools.submit(
+            session, user.id, GENERATE_IMAGE.name, payload.model_dump(mode="json")
+        )
+    except tools.InvalidParams as exc:
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, str(exc)) from exc
     return RunOut.of(run)
+
+
+@router.get("/generation-modes")
+async def get_generation_modes(user: CurrentUser) -> dict:
+    return generation_modes()
 
 
 @router.get("/runs/{run_id}")

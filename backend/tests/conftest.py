@@ -29,9 +29,11 @@ def mock_provider():
     """测试一律走占位图实现，不受本机 IMAGE_PROVIDER 配置影响，也不产生调用费用。"""
     settings = get_settings()
     original, settings.image_provider = settings.image_provider, "mock"
+    original_generation, settings.generation_provider = settings.generation_provider, ""
     get_image_provider.cache_clear()
     yield
     settings.image_provider = original
+    settings.generation_provider = original_generation
     get_image_provider.cache_clear()
 
 

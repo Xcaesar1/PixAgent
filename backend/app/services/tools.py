@@ -8,6 +8,7 @@ from app.layers import LayerDocument
 from app.models import Asset, ToolRun
 from app.models.tool_run import RunStatus
 from app.providers import ProviderError
+from app.providers.generation_modes import validate_generation
 from app.queue import enqueue
 from app.services import assets, runs, sessions
 from app.tools import UnknownTool, spec_of
@@ -42,7 +43,13 @@ async def submit(
     if spec.session_required and session_id is None:
         raise InvalidParams("此工具需要在编辑会话中使用")
 
-    run = await runs.create(session, user_id, tool, validate(tool, params), session_id)
+    validated = validate(tool, params)
+    if tool == "generate_image":
+        try:
+            validated = validate_generation(validated)
+        except ProviderError as exc:
+            raise InvalidParams(str(exc)) from exc
+    run = await runs.create(session, user_id, tool, validated, session_id)
     if spec.queued:
         await enqueue(TASK, run.id)
     else:

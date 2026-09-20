@@ -1,5 +1,5 @@
 import uuid
-from typing import Annotated
+from typing import Annotated, Literal
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -12,9 +12,18 @@ MAX_REFERENCES = 3
 
 
 class GenerateIn(BaseModel):
+    # 模式 ID 白名单，与 app.providers.generation_modes.GPT_MODES 保持一致；
+    # 上游 model 字符串不接受浏览器输入。
+    provider: Literal[
+        "dashscope",
+        "l0veyou",
+        "l0veyou-gpt-image-2-5-flare",
+        "l0veyou-gpt-image-2-5-full",
+        "mock",
+    ] | None = None
     prompt: Annotated[str, Field(min_length=1, max_length=MAX_PROMPT)]
     ratio: Ratio = Ratio.SQUARE
-    count: Annotated[int, Field(ge=1, le=6)] = 4
+    count: Annotated[int, Field(ge=1, le=6)] = 1
     negative_prompt: Annotated[str | None, Field(max_length=MAX_PROMPT)] = None
     seed: Annotated[int | None, Field(ge=0, le=2147483647)] = None
     reference_asset_ids: Annotated[list[uuid.UUID], Field(max_length=MAX_REFERENCES)] = []
@@ -41,6 +50,7 @@ class RunOut(BaseModel):
     stage: str
     error: str | None
     prompt: str | None = None
+    provider: str | None = None
     candidates: list[AssetOut] = []
     result: dict = {}
 
@@ -54,6 +64,7 @@ class RunOut(BaseModel):
             stage=run.stage,
             error=run.error,
             prompt=run.params.get("prompt"),
+            provider=run.params.get("provider"),
             candidates=candidates or [],
             result=run.result or {},
         )

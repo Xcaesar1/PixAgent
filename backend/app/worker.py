@@ -11,6 +11,7 @@ class WorkerSettings:
 
     redis_settings = RedisSettings.from_dsn(settings.redis_url)
     functions = TASKS
-    max_jobs = 4
-    job_timeout = 300
+    max_jobs = settings.worker_max_jobs
+    # Four sequential GPT tasks include polling, download and persistence time.
+    job_timeout = 1200
     keep_result = 3600

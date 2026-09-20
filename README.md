@@ -107,7 +107,7 @@ flowchart LR
 | --- | --- | --- |
 | Mock 占位图 | `IMAGE_PROVIDER=mock` | 非生产环境调试使用，不调用生图模型。 |
 | 国内生图 | `DASHSCOPE_API_KEY` + `GENERATION_PROVIDER=dashscope` | 表单支持多种比例与数量；实际模型能力和计费以服务商为准。 |
-| GPT 生图 | `L0VEYOU_TOKEN_FILE` + `GENERATION_PROVIDER=l0veyou` | 当前每次 1 张，支持 1:1、3:4、9:16、16:9，不支持参考图和随机种子。 |
+| GPT 生图 | `L0VEYOU_TOKEN_FILE`；`GENERATION_PROVIDER` 可设 `l0veyou`、`l0veyou-gpt-image-2-5-flare`、`l0veyou-gpt-image-2-5-full` | 站点模型可选 GPT Image 2、GPT Image 2.5 极速版、GPT Image 2.5 满血版；支持 1、2、4 张，多张依次生成；支持 1:1、3:4、9:16、16:9，不支持参考图和随机种子。 |
 
 ### 2. 自然语言规划与人工确认
 
@@ -302,7 +302,7 @@ npm run dev
 | 配置项 | 用途 |
 | --- | --- |
 | `IMAGE_PROVIDER` | 编辑工具 Provider，默认 `mock`，真实云端编辑使用 `dashscope`。 |
-| `GENERATION_PROVIDER` | 生图默认模式，可设 `dashscope`、`l0veyou`；空值沿用 `IMAGE_PROVIDER`。 |
+| `GENERATION_PROVIDER` | 生图默认模式，可设 `dashscope` 或任一 GPT 模式 ID（`l0veyou`、`l0veyou-gpt-image-2-5-flare`、`l0veyou-gpt-image-2-5-full`）；空值沿用 `IMAGE_PROVIDER`。 |
 | `DASHSCOPE_API_KEY` | 国内生图、DashScope 编辑及自然语言规划所需密钥。 |
 | `TEXT_TO_IMAGE_MODEL` | 国内生图模型，当前默认 `qwen-image-3.0-pro`。 |
 | `IMAGE_EDIT_MODEL` | 图像编辑模型，当前默认 `qwen-image-edit-max`。 |

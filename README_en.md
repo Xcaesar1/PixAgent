@@ -107,7 +107,7 @@ flowchart LR
 | --- | --- | --- |
 | Mock placeholders | `IMAGE_PROVIDER=mock` | Non-production development without calling an image generation model. |
 | DashScope generation | `DASHSCOPE_API_KEY` + `GENERATION_PROVIDER=dashscope` | Multiple aspect ratios and image counts in the form; supported capabilities and billing depend on the provider. |
-| GPT generation | `L0VEYOU_TOKEN_FILE` + `GENERATION_PROVIDER=l0veyou` | One image per request; supports 1:1, 3:4, 9:16, and 16:9. Reference images and random seeds are not supported. |
+| GPT generation | `L0VEYOU_TOKEN_FILE`; `GENERATION_PROVIDER` accepts `l0veyou`, `l0veyou-gpt-image-2-5-flare`, or `l0veyou-gpt-image-2-5-full` | Selectable site models: GPT Image 2, GPT Image 2.5 极速版 (flare), and GPT Image 2.5 满血版 (full). 1, 2 or 4 images per task, generated sequentially; ratios 1:1, 3:4, 9:16, and 16:9. Reference images and random seeds are not supported. |
 
 ### 2. Natural-Language Planning and Confirmation
 
@@ -302,7 +302,7 @@ Edit the root `.env` or `backend/.env` according to your setup, then restart the
 | Setting | Purpose |
 | --- | --- |
 | `IMAGE_PROVIDER` | Editing tool provider: `mock` by default, or `dashscope` for cloud editing. |
-| `GENERATION_PROVIDER` | Default generation mode: `dashscope` or `l0veyou`; an empty value inherits `IMAGE_PROVIDER`. |
+| `GENERATION_PROVIDER` | Default generation mode: `dashscope`, or one of the GPT mode IDs (`l0veyou`, `l0veyou-gpt-image-2-5-flare`, `l0veyou-gpt-image-2-5-full`); an empty value inherits `IMAGE_PROVIDER`. |
 | `DASHSCOPE_API_KEY` | Key for DashScope generation, editing, and natural-language planning. |
 | `TEXT_TO_IMAGE_MODEL` | DashScope generation model, currently defaulting to `qwen-image-3.0-pro`. |
 | `IMAGE_EDIT_MODEL` | Editing model, currently defaulting to `qwen-image-edit-max`. |

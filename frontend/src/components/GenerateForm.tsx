@@ -1,6 +1,7 @@
 import { useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 
-import { RATIO_LABELS, type GenerateInput, type Ratio } from '@/api/runs'
+import { RATIO_LABELS, runsApi, type GenerateInput, type Ratio } from '@/api/runs'
 
 const RATIOS = Object.keys(RATIO_LABELS) as Ratio[]
 const COUNTS = [1, 2, 4, 6]
@@ -16,11 +17,26 @@ export default function GenerateForm({
 }) {
   const [prompt, setPrompt] = useState(defaultPrompt)
   const [ratio, setRatio] = useState<Ratio>('1:1')
-  const [count, setCount] = useState(4)
+  const [count, setCount] = useState(1)
   const [negative, setNegative] = useState('')
   const [advanced, setAdvanced] = useState(false)
+  const [preferredProvider, setPreferredProvider] = useState(() => {
+    try {
+      return localStorage.getItem('pixagent.generation-provider') ?? ''
+    } catch {
+      return ''
+    }
+  })
+  const modes = useQuery({ queryKey: ['generation-modes'], queryFn: runsApi.modes })
+  const mode =
+    modes.data?.modes.find((item) => item.id === preferredProvider && item.enabled) ??
+    modes.data?.modes.find((item) => item.id === modes.data?.default && item.enabled)
+  const ratios = mode?.ratios ?? RATIOS
+  const counts = mode?.counts ?? COUNTS
+  const selectedRatio = ratios.includes(ratio) ? ratio : ratios[0]
+  const selectedCount = counts.includes(count) ? count : counts[0]
 
-  const canSubmit = prompt.trim().length > 0 && !pending
+  const canSubmit = prompt.trim().length > 0 && !pending && !!mode && !modes.isError
 
   return (
     <form
@@ -29,14 +45,49 @@ export default function GenerateForm({
         if (!canSubmit) return
         onSubmit({
           prompt: prompt.trim(),
-          ratio,
-          count,
+          provider: mode?.id,
+          ratio: selectedRatio,
+          count: selectedCount,
           negative_prompt: negative.trim() || undefined,
         })
       }}
       className="border-line bg-paper shadow-panel rounded-panel border p-2"
     >
+      <div className="flex flex-wrap items-center gap-2 px-4 pt-3">
+        <label htmlFor="generation-provider" className="text-muted text-xs">
+          生图模式
+        </label>
+        <select
+          id="generation-provider"
+          value={mode?.id ?? ''}
+          disabled={pending || modes.isPending || modes.isError}
+          onChange={(event) => {
+            setPreferredProvider(event.target.value)
+            try {
+              localStorage.setItem('pixagent.generation-provider', event.target.value)
+            } catch {
+              /* Selection still works when browser storage is disabled. */
+            }
+          }}
+          className="border-line bg-paper text-ink rounded-control max-w-full border px-2 py-1.5 text-sm"
+        >
+          {!mode && <option value="">{modes.isPending ? '加载模式中…' : '暂无可用模式'}</option>}
+          {modes.data?.modes.map((item) => (
+            <option key={item.id} value={item.id} disabled={!item.enabled}>
+              {item.label}
+              {!item.enabled ? `（${item.description}）` : ''}
+            </option>
+          ))}
+        </select>
+        <span className="text-faint text-xs">{mode?.description}</span>
+        {modes.isError && (
+          <button type="button" onClick={() => modes.refetch()} className="text-sm text-red-600">
+            模式加载失败，点击重试
+          </button>
+        )}
+      </div>
       <textarea
+        maxLength={1500}
         rows={3}
         value={prompt}
         onChange={(event) => setPrompt(event.target.value)}
@@ -54,14 +105,14 @@ export default function GenerateForm({
       <div className="flex flex-wrap items-center gap-2 px-2 pb-1">
         <Segmented
           label="比例"
-          options={RATIOS.map((value) => ({ value, label: value }))}
-          value={ratio}
+          options={ratios.map((value) => ({ value, label: value }))}
+          value={selectedRatio}
           onChange={setRatio}
         />
         <Segmented
           label="数量"
-          options={COUNTS.map((value) => ({ value, label: String(value) }))}
-          value={count}
+          options={counts.map((value) => ({ value, label: String(value) }))}
+          value={selectedCount}
           onChange={setCount}
         />
 
@@ -88,6 +139,7 @@ export default function GenerateForm({
       {advanced && (
         <div className="border-line animate-fade-in mt-1 border-t px-4 py-3">
           <input
+            maxLength={1500}
             value={negative}
             onChange={(event) => setNegative(event.target.value)}
             placeholder="不希望出现的内容，例如：文字、水印、多余的手"

@@ -1,0 +1,14 @@
+# Optional overlay. Keep the credential outside the source tree and image.
+services:
+  app:
+    environment:
+      GENERATION_PROVIDER: l0veyou
+      L0VEYOU_TOKEN_FILE: /run/secrets/l0veyou/session.token
+    volumes:
+      - /opt/pixagent/secrets/l0veyou:/run/secrets/l0veyou:ro
+  worker:
+    environment:
+      GENERATION_PROVIDER: l0veyou
+      L0VEYOU_TOKEN_FILE: /run/secrets/l0veyou/session.token
+    volumes:
+      - /opt/pixagent/secrets/l0veyou:/run/secrets/l0veyou:ro

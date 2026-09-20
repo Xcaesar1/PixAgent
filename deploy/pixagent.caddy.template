@@ -1,0 +1,40 @@
+pixagent.softk.ccwu.cc {
+    basicauth {
+        pixagent ENTRY_HASH
+    }
+    request_body {
+        max_size 22MB
+    }
+    header Referrer-Policy no-referrer
+    reverse_proxy 127.0.0.1:17302 {
+        header_up -Authorization
+        flush_interval -1
+    }
+}
+
+pixagent-s3.softk.ccwu.cc {
+    header Referrer-Policy no-referrer
+    @preflight {
+        method OPTIONS
+        path /pixagent/users/*
+    }
+    handle @preflight {
+        header Access-Control-Allow-Origin https://pixagent.softk.ccwu.cc
+        header Access-Control-Allow-Methods "GET, HEAD, OPTIONS"
+        header Access-Control-Allow-Headers "Content-Type, Range"
+        respond "" 204
+    }
+    @images {
+        method GET HEAD
+        path /pixagent/users/*
+    }
+    handle @images {
+        reverse_proxy 127.0.0.1:17313 {
+            header_down Access-Control-Allow-Origin https://pixagent.softk.ccwu.cc
+            header_down Access-Control-Expose-Headers ETag
+        }
+    }
+    handle {
+        respond "Forbidden" 403
+    }
+}

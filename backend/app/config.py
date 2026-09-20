@@ -13,6 +13,7 @@ class Settings(BaseSettings):
 
     app_env: str = "development"
     api_port: int = 7302
+    worker_max_jobs: int = 1
 
     database_url: str = "postgresql+asyncpg://retouch:retouch_dev@localhost:7311/retouch"
     redis_url: str = "redis://localhost:7312"
@@ -32,6 +33,9 @@ class Settings(BaseSettings):
 
     # image provider: mock | dashscope
     image_provider: str = "mock"
+    # Generation can be selected per task without changing editing providers.
+    generation_provider: str = ""
+    l0veyou_token_file: str = ""
     dashscope_api_key: str = ""
     # 业务空间专属域名为 https://{WorkspaceId}.cn-beijing.maas.aliyuncs.com
     dashscope_base_url: str = "https://dashscope.aliyuncs.com"
